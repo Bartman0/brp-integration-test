@@ -1,4 +1,3 @@
-import sys
 import argparse
 
 from personen import Personen
@@ -11,7 +10,7 @@ from nieuwe_ingezetenen import NieuweIngezetenen
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="BRP API's integration tests",
+        prog="brp-integration-test",
         description="Test availability, health and performance of BRP API's",
     )
     parser.add_argument("--personen", action="store_true")  # on/off flag
@@ -22,7 +21,7 @@ def main():
     parser.add_argument("--nieuwe-ingezetenen", action="store_true")  # on/off flag
     parser.add_argument("--performance", action="store_true")  # on/off flag
 
-    args = parser.parse_args(sys.argv)
+    args = parser.parse_args()
 
     if args.personen:
         personen = Personen(args.performance)
