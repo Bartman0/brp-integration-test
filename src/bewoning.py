@@ -1,10 +1,20 @@
-from run_interface import RunInterface
+from unittest import TestCase
+
+from locust import HttpUser
+
+from run_base import RunBase
 
 
-class Bewoning(RunInterface):
-    def __init__(self, performance_test: bool) -> None:
-        self.performance_test = performance_test
-        pass
+class Bewoning(RunBase):
+    def __init__(self, performance_test: bool, duration: int) -> None:
+        super(Bewoning, self).__init__(
+            TestBewoning, BewoningUser, performance_test, duration
+        )
 
-    def run(self):
-        pass
+
+class TestBewoning(TestCase):
+    pass
+
+
+class BewoningUser(HttpUser):
+    pass

@@ -1,45 +1,75 @@
 import os
-import unittest
 from unittest import TestCase
 
 import requests
 from locust import HttpUser, task
-from locust.env import Environment
-from locust.stats import stats_printer
-import gevent
+import locust.stats
 
-from run_interface import RunInterface
+from run_base import RunBase
+
+locust.stats.CONSOLE_STATS_INTERVAL_SEC = 1
+
+# format strings, so accolades need to be repeated to be part of the result as in JSON constructs
+PERSONEN_ZOEKVRAAG_BSN = '{{"type": "RaadpleegMetBurgerservicenummer", "burgerservicenummer": [{}], "fields": ["burgerservicenummer"]}}'
+PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER = '{{"type": "ZoekMetPostcodeEnHuisnummer", "postcode": "{}", "huisnummer": "{}", "fields": ["burgerservicenummer", "naam"]}}'
 
 
-class Personen(RunInterface):
-    def __init__(self, performance_test: bool) -> None:
-        self.performance_test = performance_test
-
-    def run(self):
-        suite = unittest.TestLoader().loadTestsFromTestCase(TestPersonen)
-        unittest.TextTestRunner(verbosity=2).run(suite)
-        if self.performance_test:
-            env = Environment(user_classes=[PersonenUser])
-            runner = env.create_local_runner()
-            runner.start(user_count=10, spawn_rate=20)
-            gevent.spawn(stats_printer(env.stats))
-            gevent.spawn_later(3, runner.quit)
-            runner.greenlet.join()
+class Personen(RunBase):
+    def __init__(
+        self, performance_test: bool, duration: int, user_count: int, spawn_rate: int
+    ) -> None:
+        super(Personen, self).__init__(
+            test_class=TestPersonen,
+            performance_class=PersonenUser,
+            performance_test=performance_test,
+            duration=duration,
+            user_count=user_count,
+            spawn_rate=spawn_rate,
+        )
 
 
 class PersonenUser(HttpUser):
-    headers = {"Content-Type": "application/json"}
-    _base_url = os.environ.get("INT_TEST_PERSONEN_BASE_URL", "http://localhost:5010")
+    _token = os.environ.get("INT_TEST_TOKEN", "test-token")
+    headers = {
+        "Authorization": _token,
+        "Content-Type": "application/json",
+        "X-User": "int-test",
+        "X-Correlation-Id": f"int-test-{os.getpid()}",
+        "X-Task-Description": "int-test",
+    }
+    _base_url = os.environ.get("INT_TEST_BASE_URL", "http://localhost:5010")
     host = _base_url
     path = os.environ.get("INT_TEST_PERSONEN_PATH", "/haalcentraal/api/brp/personen")
     url = f"{_base_url}{path}"
 
     @task
     def test_zoekvraag_bsn(self):
-        self.client.post(
+        burgerservicenummer = 999993653
+        self.__do_post(data=PERSONEN_ZOEKVRAAG_BSN.format(burgerservicenummer))
+
+    @task
+    def test_zoekvraag_postcode_huisnummer(self):
+        postcode = "3078CE"
+        huisnummer = "1"
+        self.__do_post(
+            data=PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER.format(postcode, huisnummer)
+        )
+
+    @task
+    def test_zoekvraag_postcode_huisnummer_en_bsn(self):
+        postcode = "3078CE"
+        huisnummer = "1"
+        response = self.__do_post(
+            data=PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER.format(postcode, huisnummer)
+        )
+        burgerservicenummer = response.json()["personen"][0]["burgerservicenummer"]
+        self.__do_post(data=PERSONEN_ZOEKVRAAG_BSN.format(burgerservicenummer))
+
+    def __do_post(self, data):
+        return self.client.post(
             url=f"{self.path}",
             headers=self.headers,
-            data='{"type": "RaadpleegMetBurgerservicenummer", "burgerservicenummer": ["999993653"], "fields": ["burgerservicenummer"]}',
+            data=data,
         )
 
 
@@ -51,17 +81,35 @@ class TestPersonen(TestCase):
         assert 1 == 1
 
     def test_zoekvraag_bsn(self):
-        response = requests.post(
-            url=f"{self._url}",
-            headers=self._headers,
-            data='{"type": "RaadpleegMetBurgerservicenummer", "burgerservicenummer": ["999993653"], "fields": ["burgerservicenummer"]}',
+        burgerservicenummer = 999993653
+        response = self.__do_post(
+            data=PERSONEN_ZOEKVRAAG_BSN.format(burgerservicenummer)
         )
         assert response.status_code == 200
 
     def test_zoekvraag_postcode_huisnummer(self):
-        response = requests.post(
-            url=f"{self._url}",
-            headers=self._headers,
-            data='{"type": "ZoekMetPostcodeEnHuisnummer", "postcode": "3078CE", "huisnummer": "1", "fields": ["naam"]}',
+        postcode = "3078CE"
+        huisnummer = "1"
+        response = self.__do_post(
+            data=PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER.format(postcode, huisnummer)
         )
         assert response.status_code == 200
+
+    @task
+    def test_zoekvraag_postcode_huisnummer_en_bsn(self):
+        postcode = "3078CE"
+        huisnummer = "1"
+        response = self.__do_post(
+            data=PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER.format(postcode, huisnummer)
+        )
+        assert response.status_code == 200
+        burgerservicenummer = response.json()["personen"][0]["burgerservicenummer"]
+        self.__do_post(data=PERSONEN_ZOEKVRAAG_BSN.format(burgerservicenummer))
+        assert response.status_code == 200
+
+    def __do_post(self, data) -> requests.Response:
+        return requests.post(
+            url=f"{self._url}",
+            headers=self._headers,
+            data=data,
+        )

@@ -1,10 +1,20 @@
-from run_interface import RunInterface
+from unittest import TestCase
+
+from locust import HttpUser
+
+from run_base import RunBase
 
 
-class Volgindicaties(RunInterface):
-    def __init__(self, performance_test: bool) -> None:
-        self.performance_test = performance_test
-        pass
+class Volgindicaties(RunBase):
+    def __init__(self, performance_test: bool, duration: int) -> None:
+        super(Volgindicaties, self).__init__(
+            TestVolgindicaties, VolgindicatiesUser, performance_test, duration
+        )
 
-    def run(self):
-        pass
+
+class TestVolgindicaties(TestCase):
+    pass
+
+
+class VolgindicatiesUser(HttpUser):
+    pass

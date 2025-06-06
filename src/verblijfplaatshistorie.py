@@ -1,10 +1,23 @@
-from run_interface import RunInterface
+from unittest import TestCase
+
+from locust import HttpUser
+
+from run_base import RunBase
 
 
-class Verblijfplaatshistorie(RunInterface):
-    def __init__(self, performance_test: bool) -> None:
-        self.performance_test = performance_test
-        pass
+class Verblijfplaatshistorie(RunBase):
+    def __init__(self, performance_test: bool, duration: int) -> None:
+        super(Verblijfplaatshistorie, self).__init__(
+            TestVerblijfplaatshistorie,
+            VerblijfplaatshistorieUser,
+            performance_test,
+            duration,
+        )
 
-    def run(self):
-        pass
+
+class TestVerblijfplaatshistorie(TestCase):
+    pass
+
+
+class VerblijfplaatshistorieUser(HttpUser):
+    pass

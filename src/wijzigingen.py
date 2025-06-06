@@ -1,11 +1,20 @@
-import unittest
-from run_interface import RunInterface
+from unittest import TestCase
+
+from locust import HttpUser
+
+from run_base import RunBase
 
 
-class Wijzigingen(RunInterface):
-    def __init__(self, performance_test: bool) -> None:
-        self.performance_test = performance_test
-        pass
+class Wijzigingen(RunBase):
+    def __init__(self, performance_test: bool, duration: int) -> None:
+        super(Wijzigingen, self).__init__(
+            TestWijzigingen, WijzigingenUser, performance_test, duration
+        )
 
-    def run(self):
-        unittest.main()
+
+class TestWijzigingen(TestCase):
+    pass
+
+
+class WijzigingenUser(HttpUser):
+    pass
