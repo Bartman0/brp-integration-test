@@ -6,12 +6,16 @@ from locust import HttpUser, task
 import locust.stats
 
 from run_base import RunBase
+from token_util import Token
 
 locust.stats.CONSOLE_STATS_INTERVAL_SEC = 1
 
 # format strings, so accolades need to be repeated to be part of the result as in JSON constructs
 PERSONEN_ZOEKVRAAG_BSN = '{{"type": "RaadpleegMetBurgerservicenummer", "burgerservicenummer": [{}], "fields": ["burgerservicenummer"]}}'
 PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER = '{{"type": "ZoekMetPostcodeEnHuisnummer", "postcode": "{}", "huisnummer": "{}", "fields": ["burgerservicenummer", "naam"]}}'
+
+TOKEN = Token(os.environ.get("INT_TEST_TOKEN", "int-test-token"))
+ROLES = TOKEN.roles
 
 
 class Personen(RunBase):

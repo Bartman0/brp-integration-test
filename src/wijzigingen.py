@@ -6,9 +6,16 @@ from run_base import RunBase
 
 
 class Wijzigingen(RunBase):
-    def __init__(self, performance_test: bool, duration: int) -> None:
+    def __init__(
+        self, performance_test: bool, duration: int, user_count: int, spawn_rate: int
+    ) -> None:
         super(Wijzigingen, self).__init__(
-            TestWijzigingen, WijzigingenUser, performance_test, duration
+            test_class=TestWijzigingen,
+            performance_class=WijzigingenUser,
+            performance_test=performance_test,
+            duration=duration,
+            user_count=user_count,
+            spawn_rate=spawn_rate,
         )
 
 

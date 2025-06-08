@@ -6,9 +6,16 @@ from run_base import RunBase
 
 
 class NieuweIngezetenen(RunBase):
-    def __init__(self, performance_test: bool, duration: int) -> None:
-        super(NieuweIngezetenenUser, self).__init__(
-            TestNieuweIngezetenen, NieuweIngezetenenUser, performance_test, duration
+    def __init__(
+        self, performance_test: bool, duration: int, user_count: int, spawn_rate: int
+    ) -> None:
+        super(NieuweIngezetenen, self).__init__(
+            test_class=TestNieuweIngezetenen,
+            performance_class=NieuweIngezetenenUser,
+            performance_test=performance_test,
+            duration=duration,
+            user_count=user_count,
+            spawn_rate=spawn_rate,
         )
 
 

@@ -6,12 +6,16 @@ from run_base import RunBase
 
 
 class Verblijfplaatshistorie(RunBase):
-    def __init__(self, performance_test: bool, duration: int) -> None:
+    def __init__(
+        self, performance_test: bool, duration: int, user_count: int, spawn_rate: int
+    ) -> None:
         super(Verblijfplaatshistorie, self).__init__(
-            TestVerblijfplaatshistorie,
-            VerblijfplaatshistorieUser,
-            performance_test,
-            duration,
+            test_class=TestVerblijfplaatshistorie,
+            performance_class=VerblijfplaatshistorieUser,
+            performance_test=performance_test,
+            duration=duration,
+            user_count=user_count,
+            spawn_rate=spawn_rate,
         )
 
 
