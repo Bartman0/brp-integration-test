@@ -34,3 +34,4 @@ class RunBase:
             gevent.spawn(stats_printer(env.stats))
             gevent.spawn_later(self._duration, runner.quit)
             runner.greenlet.join()
+            stats_printer(env.stats)
