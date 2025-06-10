@@ -1,6 +1,7 @@
 import argparse
 
 from personen import Personen
+from run_context import RunContext
 from verblijfplaatshistorie import Verblijfplaatshistorie
 from bewoning import Bewoning
 from volgindicatie import Volgindicaties
@@ -61,30 +62,33 @@ def main():
     )  # on/off flag
 
     args = parser.parse_args()
+    context = RunContext(
+        performance_test=args.performance,
+        duration=args.duration,
+        user_count=args.user_count,
+        spawn_rate=args.spawn_rate,
+        avg_response_time_limit=args.response_time_limit,
+        test_class=None,
+        performance_class=None,
+    )
 
     if args.personen:
-        personen = Personen(
-            args.performance,
-            args.duration,
-            args.user_count,
-            args.spawn_rate,
-            args.response_time_limit,
-        )
+        personen = Personen(context)
         personen.run()
     if args.verblijfplaatshistorie:
-        verblijfplaatshistorie = Verblijfplaatshistorie(args.performance, args.duration)
+        verblijfplaatshistorie = Verblijfplaatshistorie(context)
         verblijfplaatshistorie.run()
     if args.bewoning:
-        bewoning = Bewoning(args.performance, args.duration)
+        bewoning = Bewoning(context)
         bewoning.run()
     if args.volgindicaties:
-        volgindicaties = Volgindicaties(args.performance, args.duration)
+        volgindicaties = Volgindicaties(context)
         volgindicaties.run()
     if args.wijzigingen:
-        wijzigingen = Wijzigingen(args.performance, args.duration)
+        wijzigingen = Wijzigingen(context)
         wijzigingen.run()
     if args.nieuwe_ingezetenen:
-        nieuwe_ingezetenen = NieuweIngezetenen(args.performance, args.duration)
+        nieuwe_ingezetenen = NieuweIngezetenen(context)
         nieuwe_ingezetenen.run()
 
 

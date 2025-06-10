@@ -3,20 +3,14 @@ from unittest import TestCase
 from locust import HttpUser
 
 from run_base import RunBase
+from run_context import RunContext
 
 
 class Bewoning(RunBase):
-    def __init__(
-        self, performance_test: bool, duration: int, user_count: int, spawn_rate: int
-    ) -> None:
-        super(Bewoning, self).__init__(
-            test_class=TestBewoning,
-            performance_class=BewoningUser,
-            performance_test=performance_test,
-            duration=duration,
-            user_count=user_count,
-            spawn_rate=spawn_rate,
-        )
+    def __init__(self, context: RunContext) -> None:
+        context.test_class = TestBewoning
+        context.performance_class = BewoningUser
+        super(Bewoning, self).__init__(context)
 
 
 class TestBewoning(TestCase):

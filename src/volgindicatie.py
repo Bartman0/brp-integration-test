@@ -3,20 +3,14 @@ from unittest import TestCase
 from locust import HttpUser
 
 from run_base import RunBase
+from run_context import RunContext
 
 
 class Volgindicaties(RunBase):
-    def __init__(
-        self, performance_test: bool, duration: int, user_count: int, spawn_rate: int
-    ) -> None:
-        super(Volgindicaties, self).__init__(
-            test_class=TestVolgindicaties,
-            performance_class=VolgindicatiesUser,
-            performance_test=performance_test,
-            duration=duration,
-            user_count=user_count,
-            spawn_rate=spawn_rate,
-        )
+    def __init__(self, context: RunContext) -> None:
+        context.test_class = TestVolgindicaties
+        context.performance_class = VolgindicatiesUser
+        super(Volgindicaties, self).__init__(context)
 
 
 class TestVolgindicaties(TestCase):

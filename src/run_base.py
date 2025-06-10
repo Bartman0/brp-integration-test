@@ -1,43 +1,30 @@
 import unittest
 from dumper import dump
-from unittest import TestCase
 
 import gevent
-from locust import User
 from locust.env import Environment
 from locust.stats import RequestStats, stats_printer
 
+from run_context import RunContext
+
 
 class RunBase:
-    def __init__(
-        self,
-        test_class: type[TestCase],
-        performance_class: type[User],
-        performance_test: bool,
-        duration: int,
-        user_count: int,
-        spawn_rate: int,
-        avg_response_time_limit: int,
-    ):
-        self._performance_test: bool = performance_test
-        self._test_class: type[TestCase] = test_class
-        self._performance_class: type[User] = performance_class
-        self._duration: int = duration
-        self._user_count: int = user_count
-        self._spawn_rate: int = spawn_rate
-        self._avg_response_time_limit = avg_response_time_limit
+    def __init__(self, context: RunContext):
+        self.context = context
 
     def run(self):
         # perform the functional tests
-        suite = unittest.TestLoader().loadTestsFromTestCase(self._test_class)
+        suite = unittest.TestLoader().loadTestsFromTestCase(self.context.test_class)
         unittest.TextTestRunner(verbosity=2).run(suite)
-        if self._performance_test:
+        if self.context.performance_test:
             # perform the performance tests
-            env = Environment(user_classes=[self._performance_class])
+            env = Environment(user_classes=[self.context.performance_class])
             runner = env.create_local_runner()
-            runner.start(user_count=self._user_count, spawn_rate=self._spawn_rate)
+            runner.start(
+                user_count=self.context.user_count, spawn_rate=self.context.spawn_rate
+            )
             gevent.spawn(stats_printer(env.stats))
-            gevent.spawn_later(self._duration, runner.quit)
+            gevent.spawn_later(self.context.duration, runner.quit)
             runner.greenlet.join()
             self.check_results(env.stats)
 
@@ -49,6 +36,6 @@ class RunBase:
         # all requests are considered equal here, average response time should be below this limit
         if (
             stats.total.total_response_time / stats.num_requests
-        ) > self._avg_response_time_limit:
+        ) > self.context.avg_response_time_limit:
             raise RuntimeError("average response time limit exceeded")
         # TODO enhance with performance checks

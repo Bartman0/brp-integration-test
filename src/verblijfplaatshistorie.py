@@ -3,20 +3,14 @@ from unittest import TestCase
 from locust import HttpUser
 
 from run_base import RunBase
+from run_context import RunContext
 
 
 class Verblijfplaatshistorie(RunBase):
-    def __init__(
-        self, performance_test: bool, duration: int, user_count: int, spawn_rate: int
-    ) -> None:
-        super(Verblijfplaatshistorie, self).__init__(
-            test_class=TestVerblijfplaatshistorie,
-            performance_class=VerblijfplaatshistorieUser,
-            performance_test=performance_test,
-            duration=duration,
-            user_count=user_count,
-            spawn_rate=spawn_rate,
-        )
+    def __init__(self, context: RunContext) -> None:
+        context.test_class = TestVerblijfplaatshistorie
+        context.performance_class = VerblijfplaatshistorieUser
+        super(Verblijfplaatshistorie, self).__init__(context)
 
 
 class TestVerblijfplaatshistorie(TestCase):

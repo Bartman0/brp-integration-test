@@ -6,6 +6,7 @@ from locust import HttpUser, task
 import locust.stats
 
 from run_base import RunBase
+from run_context import RunContext
 from token_util import Token
 
 locust.stats.CONSOLE_STATS_INTERVAL_SEC = 1
@@ -19,23 +20,10 @@ ROLES = TOKEN.roles
 
 
 class Personen(RunBase):
-    def __init__(
-        self,
-        performance_test: bool,
-        duration: int,
-        user_count: int,
-        spawn_rate: int,
-        avg_response_time_limit,
-    ) -> None:
-        super(Personen, self).__init__(
-            test_class=TestPersonen,
-            performance_class=PersonenUser,
-            performance_test=performance_test,
-            duration=duration,
-            user_count=user_count,
-            spawn_rate=spawn_rate,
-            avg_response_time_limit=avg_response_time_limit,
-        )
+    def __init__(self, context: RunContext) -> None:
+        context.test_class = TestPersonen
+        context.performance_class = PersonenUser
+        super(Personen, self).__init__(context)
 
 
 class PersonenUser(HttpUser):
