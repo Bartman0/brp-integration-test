@@ -20,7 +20,12 @@ ROLES = TOKEN.roles
 
 class Personen(RunBase):
     def __init__(
-        self, performance_test: bool, duration: int, user_count: int, spawn_rate: int
+        self,
+        performance_test: bool,
+        duration: int,
+        user_count: int,
+        spawn_rate: int,
+        avg_response_time_limit,
     ) -> None:
         super(Personen, self).__init__(
             test_class=TestPersonen,
@@ -29,6 +34,7 @@ class Personen(RunBase):
             duration=duration,
             user_count=user_count,
             spawn_rate=spawn_rate,
+            avg_response_time_limit=avg_response_time_limit,
         )
 
 
