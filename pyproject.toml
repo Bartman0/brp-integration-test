@@ -1,0 +1,19 @@
+[project]
+name = "brp-integration-test"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dumper>=1.2.0",
+    "locust>=2.37.6",
+    "pyjwt>=2.10.1",
+    "pytest>=8.3.5",
+]
+
+[dependency-groups]
+dev = [
+ "ruff>=0.11.11",
+]
+[tool.ruff.lint]
+extend-select = ["B"]
