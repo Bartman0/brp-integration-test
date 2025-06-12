@@ -1,5 +1,4 @@
 import unittest
-from dumper import dump
 
 import gevent
 from locust.env import Environment
@@ -30,12 +29,12 @@ class RunBase:
 
     def check_results(self, stats: RequestStats):
         # this dump() is just for debugging/logging, will be removed soon
-        dump(stats)
+        # dump(stats)
         if stats.num_failures > 0:
             raise RuntimeError("error executing performance tests")
         # all requests are considered equal here, average response time should be below this limit
-        if (
-            stats.total.total_response_time / stats.num_requests
-        ) > self.context.avg_response_time_limit:
+        average_response_time = stats.total.total_response_time / stats.num_requests
+        print(f"average response time (ms): {average_response_time}")
+        if average_response_time > self.context.avg_response_time_limit:
             raise RuntimeError("average response time limit exceeded")
         # TODO enhance with performance checks

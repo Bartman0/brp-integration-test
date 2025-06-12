@@ -16,6 +16,8 @@ locust.stats.CONSOLE_STATS_INTERVAL_SEC = 1
 PERSONEN_ZOEKVRAAG_BSN = '{{"type": "RaadpleegMetBurgerservicenummer", "burgerservicenummer": [{}], "fields": ["burgerservicenummer"]}}'
 PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER = '{{"type": "ZoekMetPostcodeEnHuisnummer", "postcode": "{}", "huisnummer": "{}", "fields": ["burgerservicenummer", "naam"]}}'
 
+PERSONEN_PATH = "/haalcentraal/api/brp/personen"
+
 TOKEN = Token(os.environ.get("INT_TEST_TOKEN", "int-test-token"))
 ROLES = TOKEN.roles
 
@@ -28,10 +30,13 @@ class Personen(RunBase):
 
 
 class PersonenUser(BrpUser):
+    def __init__(self, environment):
+        super().__init__(environment=environment, path=PERSONEN_PATH)
+
     # locust does not like me to put this in the super class BrpUser
     def __do_post(self, data):
         return self.client.post(
-            url=f"{self.path}",
+            url=self.path,
             headers=self.headers,
             data=data,
         )
@@ -62,8 +67,8 @@ class PersonenUser(BrpUser):
 
 
 class TestPersonen(TestCase):
-    _headers = PersonenUser.headers
-    _url = PersonenUser.url
+    __headers = PersonenUser.headers
+    __url = f"{BrpUser._base_url}{PERSONEN_PATH}"
 
     def test_simple(self):
         assert 1 == 1
@@ -96,7 +101,7 @@ class TestPersonen(TestCase):
 
     def __do_post(self, data) -> requests.Response:
         return requests.post(
-            url=f"{self._url}",
-            headers=self._headers,
+            url=f"{self.__url}",
+            headers=self.__headers,
             data=data,
         )
