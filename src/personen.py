@@ -1,12 +1,13 @@
 import os
 from unittest import TestCase
 
-import requests
-from locust import HttpUser, task
 import locust.stats
+import requests
+from locust import task
 
 from run_base import RunBase
 from run_context import RunContext
+from brp_user import BrpUser
 from token_util import Token
 
 locust.stats.CONSOLE_STATS_INTERVAL_SEC = 1
@@ -14,6 +15,8 @@ locust.stats.CONSOLE_STATS_INTERVAL_SEC = 1
 # format strings, so accolades need to be repeated to be part of the result as in JSON constructs
 PERSONEN_ZOEKVRAAG_BSN = '{{"type": "RaadpleegMetBurgerservicenummer", "burgerservicenummer": [{}], "fields": ["burgerservicenummer"]}}'
 PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER = '{{"type": "ZoekMetPostcodeEnHuisnummer", "postcode": "{}", "huisnummer": "{}", "fields": ["burgerservicenummer", "naam"]}}'
+
+PERSONEN_PATH = "/haalcentraal/api/brp/personen"
 
 TOKEN = Token(os.environ.get("INT_TEST_TOKEN", "int-test-token"))
 ROLES = TOKEN.roles
@@ -23,22 +26,20 @@ class Personen(RunBase):
     def __init__(self, context: RunContext) -> None:
         context.test_class = TestPersonen
         context.performance_class = PersonenUser
-        super(Personen, self).__init__(context)
+        super().__init__(context)
 
 
-class PersonenUser(HttpUser):
-    _token = os.environ.get("INT_TEST_TOKEN", "test-token")
-    headers = {
-        "Authorization": _token,
-        "Content-Type": "application/json",
-        "X-User": "int-test",
-        "X-Correlation-Id": f"int-test-{os.getpid()}",
-        "X-Task-Description": "int-test",
-    }
-    _base_url = os.environ.get("INT_TEST_BASE_URL", "http://localhost:5010")
-    host = _base_url
-    path = os.environ.get("INT_TEST_PERSONEN_PATH", "/haalcentraal/api/brp/personen")
-    url = f"{_base_url}{path}"
+class PersonenUser(BrpUser):
+    def __init__(self, environment):
+        super().__init__(environment=environment, path=PERSONEN_PATH)
+
+    # locust does not like me to put this in the super class BrpUser
+    def __do_post(self, data):
+        return self.client.post(
+            url=self.path,
+            headers=self.headers,
+            data=data,
+        )
 
     @task
     def test_zoekvraag_bsn(self):
@@ -60,20 +61,14 @@ class PersonenUser(HttpUser):
         response = self.__do_post(
             data=PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER.format(postcode, huisnummer)
         )
+        # use the first burgerservicenummer returned as input for a bsn zoekvraag query
         burgerservicenummer = response.json()["personen"][0]["burgerservicenummer"]
         self.__do_post(data=PERSONEN_ZOEKVRAAG_BSN.format(burgerservicenummer))
 
-    def __do_post(self, data):
-        return self.client.post(
-            url=f"{self.path}",
-            headers=self.headers,
-            data=data,
-        )
-
 
 class TestPersonen(TestCase):
-    _headers = PersonenUser.headers
-    _url = PersonenUser.url
+    __headers = PersonenUser.headers
+    __url = f"{BrpUser._base_url}{PERSONEN_PATH}"
 
     def test_simple(self):
         assert 1 == 1
@@ -93,7 +88,6 @@ class TestPersonen(TestCase):
         )
         assert response.status_code == 200
 
-    @task
     def test_zoekvraag_postcode_huisnummer_en_bsn(self):
         postcode = "3078CE"
         huisnummer = "1"
@@ -107,7 +101,7 @@ class TestPersonen(TestCase):
 
     def __do_post(self, data) -> requests.Response:
         return requests.post(
-            url=f"{self._url}",
-            headers=self._headers,
+            url=f"{self.__url}",
+            headers=self.__headers,
             data=data,
         )
