@@ -1,7 +1,6 @@
 from unittest import TestCase
 
-from locust import HttpUser
-
+from brp_user import BrpUser
 from run_base import RunBase
 from run_context import RunContext
 
@@ -17,5 +16,5 @@ class TestWijzigingen(TestCase):
     pass
 
 
-class WijzigingenUser(HttpUser):
+class WijzigingenUser(BrpUser):
     pass
