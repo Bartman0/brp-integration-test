@@ -27,6 +27,11 @@ BEWONING_PATH = "/bevragingen/v1/bewoningen"
 # http_client.HTTPConnection.debuglevel = 1
 
 
+BEWONING_MET_PEILDATUM = '{{"type": "BewoningMetPeildatum", "adresseerbaarObjectIdentificatie": "{}", "peildatum": "{}"}}'
+
+BEWONING_PATH = "/haalcentraal/api/bewoning/bewoningen"
+
+
 class Bewoning(RunBase):
     def __init__(self, context: RunContext) -> None:
         context.test_class = TestBewoning
