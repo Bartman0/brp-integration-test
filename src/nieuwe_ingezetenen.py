@@ -7,10 +7,9 @@ from brp_user import BrpUser
 from run_base import RunBase
 from run_context import RunContext
 
-from datetime import datetime, timedelta
+from util import number_of_days_back_in_time_as_iso
 
-
-NIEUWE_INGEZETENEN_PATH = "/haalcentraal/api/nieuwe-ingezetenen"
+NIEUWE_INGEZETENEN_PATH = "/kennisgevingen/v1/nieuwe-ingezetenen"
 
 
 class NieuweIngezetenen(RunBase):
@@ -18,10 +17,6 @@ class NieuweIngezetenen(RunBase):
         context.test_class = TestNieuweIngezetenen
         context.performance_class = NieuweIngezetenenUser
         super(NieuweIngezetenen, self).__init__(context)
-
-
-def number_of_days_back_in_time_as_iso(days: int):
-    return (datetime.today() - timedelta(days)).strftime("%Y-%m-%d")
 
 
 class NieuweIngezetenenUser(BrpUser):
@@ -40,9 +35,6 @@ class NieuweIngezetenenUser(BrpUser):
 class TestNieuweIngezetenen(TestCase):
     __headers = NieuweIngezetenenUser.headers
     __url = f"{BrpUser._base_url}{NIEUWE_INGEZETENEN_PATH}"
-
-    def test_simple(self):
-        assert 1 == 1
 
     def test_nieuwe_ingezetenen(self):
         response = self.__do_get(

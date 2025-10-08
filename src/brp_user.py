@@ -8,8 +8,9 @@ class BrpUser(HttpUser):
     _base_url = os.environ.get("INT_TEST_BASE_URL", "http://localhost:5010")
     host = _base_url
     _headers = {
-        "Authorization": _token,
+        "Authorization": f"Bearer {_token}",
         "Content-Type": "application/json",
+        "Accept": "application/json, application/hal+json",
         "X-User": "int-test",
         "X-Correlation-Id": f"int-test-{os.getpid()}",
         "X-Task-Description": "int-test",
@@ -21,7 +22,7 @@ class BrpUser(HttpUser):
 
     def __do_post(self, data):
         return self.client.post(
-            url=f"{self._path}",
+            url=self._path,
             headers=BrpUser._headers,
             data=data,
         )

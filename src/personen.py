@@ -14,12 +14,29 @@ locust.stats.CONSOLE_STATS_INTERVAL_SEC = 1
 
 # format strings, so accolades need to be repeated to be part of the result as in JSON constructs
 PERSONEN_ZOEKVRAAG_BSN = '{{"type": "RaadpleegMetBurgerservicenummer", "burgerservicenummer": [{}], "fields": ["burgerservicenummer"]}}'
-PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER = '{{"type": "ZoekMetPostcodeEnHuisnummer", "postcode": "{}", "huisnummer": "{}", "fields": ["burgerservicenummer", "naam"]}}'
+PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER = (
+    '{{"type": "ZoekMetPostcodeEnHuisnummer", "postcode": "{}", "huisnummer": "{}"}}'
+)
 
-PERSONEN_PATH = "/haalcentraal/api/brp/personen"
+PERSONEN_PATH = "/bevragingen/v1/personen"
+
+PERSONEN_TEST_BSN = "999972030"
+PERSONEN_TEST_POSTCODE = "1014CB"
+PERSONEN_TEST_HUISNUMMER = "20"
 
 TOKEN = Token(os.environ.get("INT_TEST_TOKEN", "int-test-token"))
 ROLES = TOKEN.roles
+
+
+# # You must initialize logging, otherwise you'll not see debug output.
+# logging.basicConfig()
+# logging.getLogger().setLevel(logging.DEBUG)
+# requests_log = logging.getLogger("requests.packages.urllib3")
+# requests_log.setLevel(logging.DEBUG)
+# requests_log.propagate = True
+#
+# import http.client as http_client
+# http_client.HTTPConnection.debuglevel = 1
 
 
 class Personen(RunBase):
@@ -43,27 +60,24 @@ class PersonenUser(BrpUser):
 
     @task
     def test_zoekvraag_bsn(self):
-        burgerservicenummer = 999993653
+        burgerservicenummer = PERSONEN_TEST_BSN
         self.__do_post(data=PERSONEN_ZOEKVRAAG_BSN.format(burgerservicenummer))
 
     @task
     def test_zoekvraag_postcode_huisnummer(self):
-        postcode = "3078CE"
-        huisnummer = "1"
+        postcode = PERSONEN_TEST_POSTCODE
+        huisnummer = PERSONEN_TEST_HUISNUMMER
         self.__do_post(
             data=PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER.format(postcode, huisnummer)
         )
 
     @task
     def test_zoekvraag_postcode_huisnummer_en_bsn(self):
-        postcode = "3078CE"
-        huisnummer = "1"
-        response = self.__do_post(
+        postcode = PERSONEN_TEST_POSTCODE
+        huisnummer = PERSONEN_TEST_HUISNUMMER
+        self.__do_post(
             data=PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER.format(postcode, huisnummer)
         )
-        # use the first burgerservicenummer returned as input for a bsn zoekvraag query
-        burgerservicenummer = response.json()["personen"][0]["burgerservicenummer"]
-        self.__do_post(data=PERSONEN_ZOEKVRAAG_BSN.format(burgerservicenummer))
 
 
 class TestPersonen(TestCase):
@@ -74,34 +88,35 @@ class TestPersonen(TestCase):
         assert 1 == 1
 
     def test_zoekvraag_bsn(self):
-        burgerservicenummer = 999993653
+        burgerservicenummer = PERSONEN_TEST_BSN
         response = self.__do_post(
             data=PERSONEN_ZOEKVRAAG_BSN.format(burgerservicenummer)
         )
         assert response.status_code == 200
 
     def test_zoekvraag_postcode_huisnummer(self):
-        postcode = "3078CE"
-        huisnummer = "1"
+        postcode = PERSONEN_TEST_POSTCODE
+        huisnummer = PERSONEN_TEST_HUISNUMMER
         response = self.__do_post(
             data=PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER.format(postcode, huisnummer)
         )
         assert response.status_code == 200
 
     def test_zoekvraag_postcode_huisnummer_en_bsn(self):
-        postcode = "3078CE"
-        huisnummer = "1"
+        postcode = PERSONEN_TEST_POSTCODE
+        huisnummer = PERSONEN_TEST_HUISNUMMER
         response = self.__do_post(
             data=PERSONEN_ZOEKVRAAG_POSTCODE_HUISNUMMER.format(postcode, huisnummer)
         )
         assert response.status_code == 200
+        # use the first burgerservicenummer returned as input for a bsn zoekvraag query
         burgerservicenummer = response.json()["personen"][0]["burgerservicenummer"]
         self.__do_post(data=PERSONEN_ZOEKVRAAG_BSN.format(burgerservicenummer))
         assert response.status_code == 200
 
     def __do_post(self, data) -> requests.Response:
         return requests.post(
-            url=f"{self.__url}",
+            url=self.__url,
             headers=self.__headers,
             data=data,
         )
