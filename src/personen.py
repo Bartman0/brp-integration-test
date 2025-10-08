@@ -24,8 +24,6 @@ PERSONEN_TEST_BSN = "999972030"
 PERSONEN_TEST_POSTCODE = "1014CB"
 PERSONEN_TEST_HUISNUMMER = "20"
 
-PERSONEN_PATH = "/haalcentraal/api/brp/personen"
-
 TOKEN = Token(os.environ.get("INT_TEST_TOKEN", "int-test-token"))
 ROLES = TOKEN.roles
 
