@@ -6,6 +6,25 @@ from locust import task
 from brp_user import BrpUser
 from run_base import RunBase
 from run_context import RunContext
+from util import number_of_days_back_in_time_as_iso
+
+BEWONING_MET_PEILDATUM = '{{"type": "BewoningMetPeildatum", "adresseerbaarObjectIdentificatie": "{}", "peildatum": "{}"}}'
+BEWONING_TEST_ID = "0363010000909061"
+BEWONING_TEST_PEILDATUM = number_of_days_back_in_time_as_iso(14)
+
+
+BEWONING_PATH = "/bevragingen/v1/bewoningen"
+
+
+# # You must initialize logging, otherwise you'll not see debug output.
+# logging.basicConfig()
+# logging.getLogger().setLevel(logging.DEBUG)
+# requests_log = logging.getLogger("requests.packages.urllib3")
+# requests_log.setLevel(logging.DEBUG)
+# requests_log.propagate = True
+#
+# import http.client as http_client
+# http_client.HTTPConnection.debuglevel = 1
 
 
 BEWONING_MET_PEILDATUM = '{{"type": "BewoningMetPeildatum", "adresseerbaarObjectIdentificatie": "{}", "peildatum": "{}"}}'
@@ -34,8 +53,8 @@ class BewoningUser(BrpUser):
 
     @task
     def test_bewoning_met_peildatum(self):
-        adresseerbaar_object_identificatie = "0518010000832200"
-        peildatum = "2020-09-24"
+        adresseerbaar_object_identificatie = BEWONING_TEST_ID
+        peildatum = BEWONING_TEST_PEILDATUM
         self.__do_post(
             data=BEWONING_MET_PEILDATUM.format(
                 adresseerbaar_object_identificatie, peildatum
@@ -47,12 +66,9 @@ class TestBewoning(TestCase):
     __headers = BewoningUser.headers
     __url = f"{BrpUser._base_url}{BEWONING_PATH}"
 
-    def test_simple(self):
-        assert 1 == 1
-
     def test_bewoning_met_peildatum(self):
-        adresseerbaar_object_identificatie = "0518010000832200"
-        peildatum = "2020-09-24"
+        adresseerbaar_object_identificatie = BEWONING_TEST_ID
+        peildatum = BEWONING_TEST_PEILDATUM
         response = self.__do_post(
             data=BEWONING_MET_PEILDATUM.format(
                 adresseerbaar_object_identificatie, peildatum

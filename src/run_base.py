@@ -34,7 +34,10 @@ class RunBase:
             raise RuntimeError("error executing performance tests")
         # all requests are considered equal here, average response time should be below this limit
         average_response_time = stats.total.total_response_time / stats.num_requests
-        print(f"average response time (ms): {average_response_time}")
+        print(
+            f"average response time (ms) [{self.context.performance_class.__module__}.{self.context.performance_class.__name__}]: {average_response_time:0.0f}"
+        )
+        print("=" * 60)
         if average_response_time > self.context.avg_response_time_limit:
             raise RuntimeError("average response time limit exceeded")
         # TODO enhance with performance checks
