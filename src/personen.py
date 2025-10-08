@@ -28,17 +28,6 @@ TOKEN = Token(os.environ.get("INT_TEST_TOKEN", "int-test-token"))
 ROLES = TOKEN.roles
 
 
-# # You must initialize logging, otherwise you'll not see debug output.
-# logging.basicConfig()
-# logging.getLogger().setLevel(logging.DEBUG)
-# requests_log = logging.getLogger("requests.packages.urllib3")
-# requests_log.setLevel(logging.DEBUG)
-# requests_log.propagate = True
-#
-# import http.client as http_client
-# http_client.HTTPConnection.debuglevel = 1
-
-
 class Personen(RunBase):
     def __init__(self, context: RunContext) -> None:
         context.test_class = TestPersonen
@@ -83,9 +72,6 @@ class PersonenUser(BrpUser):
 class TestPersonen(TestCase):
     __headers = PersonenUser.headers
     __url = f"{BrpUser._base_url}{PERSONEN_PATH}"
-
-    def test_simple(self):
-        assert 1 == 1
 
     def test_zoekvraag_bsn(self):
         burgerservicenummer = PERSONEN_TEST_BSN

@@ -16,22 +16,6 @@ BEWONING_TEST_PEILDATUM = number_of_days_back_in_time_as_iso(14)
 BEWONING_PATH = "/bevragingen/v1/bewoningen"
 
 
-# # You must initialize logging, otherwise you'll not see debug output.
-# logging.basicConfig()
-# logging.getLogger().setLevel(logging.DEBUG)
-# requests_log = logging.getLogger("requests.packages.urllib3")
-# requests_log.setLevel(logging.DEBUG)
-# requests_log.propagate = True
-#
-# import http.client as http_client
-# http_client.HTTPConnection.debuglevel = 1
-
-
-BEWONING_MET_PEILDATUM = '{{"type": "BewoningMetPeildatum", "adresseerbaarObjectIdentificatie": "{}", "peildatum": "{}"}}'
-
-BEWONING_PATH = "/haalcentraal/api/bewoning/bewoningen"
-
-
 class Bewoning(RunBase):
     def __init__(self, context: RunContext) -> None:
         context.test_class = TestBewoning

@@ -14,20 +14,6 @@ VOLGINDICATIES_EINDDATUM_TOEKOMST = "2099-12-31"
 VOLGINDICATIES_TEST_BSN = "900132747"
 
 
-# # You must initialize logging, otherwise you'll not see debug output.
-# logging.basicConfig()
-# logging.getLogger().setLevel(logging.DEBUG)
-# requests_log = logging.getLogger("requests.packages.urllib3")
-# requests_log.setLevel(logging.DEBUG)
-# requests_log.propagate = True
-#
-# import http.client as http_client
-# http_client.HTTPConnection.debuglevel = 1
-
-
-# unittest.TestLoader.sortTestMethodsUsing = None
-
-
 class Volgindicaties(RunBase):
     def __init__(self, context: RunContext) -> None:
         context.test_class = TestVolgindicaties
